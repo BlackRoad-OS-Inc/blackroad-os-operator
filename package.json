@@ -20,7 +20,7 @@
     "fastify": "^4.28.1",
     "ioredis": "^5.4.1",
     "node-cron": "^3.0.3",
-    "pino": "^9.5.0"
+    "pino": "^10.3.1"
   },
   "devDependencies": {
     "@types/node": "^25.3.3",
