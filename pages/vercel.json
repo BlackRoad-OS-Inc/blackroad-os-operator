@@ -3,6 +3,7 @@
   "name": "blackroad-pages",
   "public": true,
   "rewrites": [
+    { "source": "/directory", "destination": "/directory/index.html" },
     { "source": "/radar", "destination": "/radar/index.html" },
     { "source": "/radar/pricing", "destination": "/radar/pricing.html" },
     { "source": "/dashboard", "destination": "/dashboard/index.html" },
