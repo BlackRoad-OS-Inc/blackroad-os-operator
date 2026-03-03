@@ -15,6 +15,7 @@ import time
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional
 
+import httpx
 from openai import OpenAI
 
 from .secrets import resolve_secret, get_secret, SecretNotFoundError
@@ -150,3 +151,105 @@ def get_llm_client() -> LLMClient:
     if _llm_client is None:
         _llm_client = LLMClient()
     return _llm_client
+
+
+class OllamaClient:
+    """Direct Ollama API client — no external provider dependency.
+
+    Sends requests to a locally-running Ollama instance.
+    Configured via OLLAMA_URL and OLLAMA_MODEL environment variables.
+    """
+
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None,
+        timeout: float = 120.0,
+    ):
+        self.base_url = (base_url or os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")).rstrip("/")
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2:latest")
+        self.timeout = timeout
+        # Persistent client for connection reuse across requests
+        self._client = httpx.Client(timeout=self.timeout)
+
+    def chat(
+        self,
+        messages: List[LLMMessage],
+        model: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+    ) -> LLMResult:
+        """Send a chat request to the local Ollama instance.
+
+        Args:
+            messages: List of LLMMessage objects
+            model: Override the default Ollama model
+            temperature: Sampling temperature (0.0 to 1.0)
+            max_tokens: Maximum tokens in response (maps to num_predict)
+
+        Returns:
+            LLMResult with reply and trace
+        """
+        start_time = time.time()
+
+        ollama_messages = [
+            {"role": msg.role, "content": msg.content} for msg in messages
+        ]
+
+        payload: dict = {
+            "model": model or self.model,
+            "messages": ollama_messages,
+            "stream": False,
+            "options": {"temperature": temperature},
+        }
+        if max_tokens:
+            payload["options"]["num_predict"] = max_tokens
+
+        response = self._client.post(
+            f"{self.base_url}/api/chat",
+            json=payload,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        response_time_ms = (time.time() - start_time) * 1000
+
+        reply = data.get("message", {}).get("content", "").strip()
+        used_model = data.get("model", model or self.model)
+
+        # Ollama eval_count ≈ tokens out; prompt_eval_count ≈ tokens in
+        tokens_in = data.get("prompt_eval_count")
+        tokens_out = data.get("eval_count")
+
+        trace = LLMTrace(
+            llm_provider="ollama",
+            model=used_model,
+            response_time_ms=round(response_time_ms, 2),
+            used_rag=False,
+            raw_tokens_in=tokens_in,
+            raw_tokens_out=tokens_out,
+        )
+
+        return LLMResult(reply=reply, trace=trace)
+
+    def list_models(self) -> List[str]:
+        """Return model names available in the local Ollama instance."""
+        try:
+            response = self._client.get(f"{self.base_url}/api/tags", timeout=10.0)
+            response.raise_for_status()
+            data = response.json()
+            return [m.get("name", "") for m in data.get("models", []) if m.get("name")]
+        except Exception:
+            return []
+
+
+# Singleton Ollama client
+_ollama_client: Optional[OllamaClient] = None
+
+
+def get_ollama_client() -> OllamaClient:
+    """Get or create the singleton Ollama client."""
+    global _ollama_client
+    if _ollama_client is None:
+        _ollama_client = OllamaClient()
+    return _ollama_client

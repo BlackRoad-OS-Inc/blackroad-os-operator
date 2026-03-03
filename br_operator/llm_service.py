@@ -11,13 +11,14 @@ Hero Flow #2: User → Operator → RAG API → OpenAI → Response
 
 from __future__ import annotations
 
+import asyncio
 import os
 import time
 from typing import Any, Dict, List, Optional
 
 import httpx
 
-from .llm_client import LLMClient, LLMMessage, LLMResult, get_llm_client
+from .llm_client import LLMMessage, LLMResult, get_llm_client, get_ollama_client
 from .traced_http import TracedAsyncClient
 from .ps_sha_infinity import get_cece_identity, create_verification_stamp, get_root_cipher
 
@@ -25,6 +26,19 @@ from .ps_sha_infinity import get_cece_identity, create_verification_stamp, get_r
 # Configuration from environment
 # =============================================================================
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")
+
+# Ollama configuration (used for @mention routing and when LLM_PROVIDER=ollama)
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
+
+# @mention triggers that route all requests directly to local Ollama
+# regardless of the configured LLM_PROVIDER.
+OLLAMA_MENTION_TRIGGERS: frozenset[str] = frozenset({
+    "@copilot",
+    "@lucidia",
+    "@blackboxprogramming",
+    "@ollama",
+})
 
 # RAG API configuration
 # Expected contract (standard FastAPI RAG pattern):
@@ -62,6 +76,30 @@ CONTEXT:
 ---
 
 Now respond to the user's question. Be helpful, concise, and technically capable."""
+
+
+def detect_ollama_mention(message: str) -> bool:
+    """Return True if the message contains an @mention trigger for Ollama routing.
+
+    Matches @copilot, @lucidia, @blackboxprogramming, or @ollama
+    (case-insensitive) anywhere in the message.
+    """
+    lower = message.lower()
+    return any(trigger in lower for trigger in OLLAMA_MENTION_TRIGGERS)
+
+
+def strip_mention_prefix(message: str) -> str:
+    """Remove a leading @mention trigger from the message, if present.
+
+    Only strips a trigger that appears at the very beginning of the
+    (stripped) message so that inline mentions are preserved verbatim.
+    """
+    stripped = message.strip()
+    lower = stripped.lower()
+    for trigger in OLLAMA_MENTION_TRIGGERS:
+        if lower.startswith(trigger):
+            return stripped[len(trigger):].lstrip()
+    return stripped
 
 
 async def fetch_rag_context(
@@ -118,8 +156,62 @@ async def generate_chat_response(
     Hero Flow #1 (use_rag=False): Direct LLM call
     Hero Flow #2 (use_rag=True):  RAG context → LLM call
 
+    Ollama Flow: When the message contains @copilot, @lucidia,
+    @blackboxprogramming, or @ollama the request is sent directly to the
+    local Ollama instance — no external provider is used.
+
     If RAG fails, gracefully falls back to Hero Flow #1.
     """
+    # ------------------------------------------------------------------
+    # Ollama mention routing — bypasses all external providers
+    # ------------------------------------------------------------------
+    use_ollama = detect_ollama_mention(message)
+    if use_ollama:
+        clean_message = strip_mention_prefix(message)
+        effective_system_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
+        messages = [LLMMessage(role="system", content=effective_system_prompt)]
+        if conversation_history:
+            for turn in conversation_history:
+                if "user_message" in turn and "assistant_reply" in turn:
+                    messages.append(LLMMessage(role="user", content=turn["user_message"]))
+                    messages.append(LLMMessage(role="assistant", content=turn["assistant_reply"]))
+        messages.append(LLMMessage(role="user", content=clean_message))
+
+        try:
+            ollama_client = get_ollama_client()
+            result: LLMResult = await asyncio.to_thread(
+                ollama_client.chat, messages=messages, model=model
+            )
+        except Exception as e:
+            raise RuntimeError(f"Ollama error: {e}") from e
+
+        trace: Dict[str, Any] = {
+            "llm_provider": result.trace.llm_provider,
+            "model": result.trace.model,
+            "response_time_ms": result.trace.response_time_ms,
+            "used_rag": False,
+            "raw_tokens_in": result.trace.raw_tokens_in,
+            "raw_tokens_out": result.trace.raw_tokens_out,
+        }
+
+        try:
+            cece_identity = get_cece_identity()
+            root_cipher = get_root_cipher()
+            sovereignty = create_verification_stamp(root_cipher, "Cece-Chat")
+        except Exception:
+            cece_identity = {"agent": "Cece", "owner": "Alexa Louise Amundson"}
+            sovereignty = {"owner": "ALEXA LOUISE AMUNDSON", "verified": False}
+
+        return {
+            "reply": result.reply,
+            "trace": trace,
+            "identity": cece_identity,
+            "__sovereignty": sovereignty,
+        }
+
+    # ------------------------------------------------------------------
+    # Standard flow (Hero Flow #1 / #2)
+    # ------------------------------------------------------------------
     # Track RAG state
     used_rag = False
     rag_latency_ms: Optional[int] = None
@@ -204,6 +296,8 @@ async def generate_chat_response(
 
 async def check_llm_health() -> Dict[str, Any]:
     """Check if LLM client is configured and working."""
+    ollama_client = get_ollama_client()
+    models = await asyncio.to_thread(ollama_client.list_models)
     try:
         llm_client = get_llm_client()
 
@@ -213,11 +307,16 @@ async def check_llm_health() -> Dict[str, Any]:
             "provider": LLM_PROVIDER,
             "configured_model": llm_client.model,
             "base_url": llm_client.base_url or "https://api.openai.com",
+            "ollama_url": ollama_client.base_url,
+            "models": models,
         }
     except Exception as e:
         return {
             "healthy": False,
             "provider": LLM_PROVIDER,
+            "configured_model": "",
+            "ollama_url": ollama_client.base_url,
+            "models": models,
             "error": str(e),
         }
 
