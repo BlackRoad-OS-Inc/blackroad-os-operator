@@ -5,21 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BlackRoad App | Dashboard</title>
   <meta name="description" content="Your BlackRoad OS dashboard. Manage infrastructure, deploy apps, and monitor everything.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FF9D00'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FF6B2B'/></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <!-- Clerk -->
   <script async crossorigin="anonymous" data-clerk-publishable-key="pk_live_Y2xlcmsuYmxhY2tyb2FkLmlvJA" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
   <style>
     :root {
-      --br-sunrise: #FF9D00;
-      --br-hot-pink: #FF0066;
-      --br-vivid-purple: #7700FF;
-      --br-cyber-blue: #0066FF;
+      --br-sunrise: #FF6B2B; /* Ember — approved 03/05/26 */
+      --br-hot-pink: #FF2255; /* Fuse — approved 03/05/26 */
+      --br-vivid-purple: #8844FF; /* Drift — approved 03/05/26 */
+      --br-cyber-blue: #4488FF; /* Signal — approved 03/05/26 */
       --br-black: #000000;
       --br-charcoal: #0D0D0D;
       --br-slate: #141414;
       --br-white: #FFFFFF;
-      --br-gradient-brand: linear-gradient(135deg, #FF9D00 0%, #FF6B00 25%, #FF0066 50%, #D600AA 75%, #7700FF 100%);
+      --br-gradient-brand: linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF);
       --br-font-display: 'Inter Tight', sans-serif;
       --br-font-body: 'Inter', sans-serif;
       --br-font-mono: 'JetBrains Mono', monospace;
@@ -432,7 +432,7 @@
       } catch (error) {
         console.error('Clerk initialization error:', error);
         document.getElementById('loading').innerHTML = `
-          <p style="color: rgba(255,255,255,0.6);">Unable to load authentication. <a href="/" style="color: #FF9D00;">Try again</a></p>
+          <p style="color: rgba(255,255,255,0.6);">Unable to load authentication. <a href="/" style="color: #FF6B2B;">Try again</a></p>
         `;
       }
     });

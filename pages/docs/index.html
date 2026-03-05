@@ -5,18 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documentation | BlackRoad OS</title>
   <meta name="description" content="Learn how to build with BlackRoad OS. Guides, API reference, and examples.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%230066FF'/></svg>">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%234488FF'/></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --br-cyber-blue: #0066FF;
-      --br-vivid-purple: #7700FF;
-      --br-sunrise: #FF9D00;
-      --br-black: #000000;
-      --br-charcoal: #0D0D0D;
+      --br-accent-1: #FF6B2B;
+      --br-accent-2: #FF2255;
+      --br-accent-3: #CC00AA;
+      --br-accent-4: #8844FF;
+      --br-accent-5: #4488FF;
+      --br-accent-6: #00D4FF;
+      /* Legacy aliases */
+      --br-cyber-blue: #4488FF;
+      --br-vivid-purple: #8844FF;
+      --br-sunrise: #FF6B2B;
+      --br-black: #0a0a0a;
+      --br-charcoal: #171717;
       --br-white: #FFFFFF;
-      --br-gradient-docs: linear-gradient(135deg, #0066FF 0%, #7700FF 100%);
-      --br-font-display: 'Inter Tight', sans-serif;
+      --br-gradient-docs: linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF);
+      --br-font-display: 'Space Grotesk', sans-serif;
       --br-font-body: 'Inter', sans-serif;
       --br-font-mono: 'JetBrains Mono', monospace;
     }
@@ -31,8 +38,8 @@
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background:
-        radial-gradient(ellipse at 20% 10%, rgba(0, 102, 255, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 90%, rgba(119, 0, 255, 0.1) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 10%, rgba(68, 136, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(136, 68, 255, 0.08) 0%, transparent 50%);
       z-index: -1;
     }
     header {
@@ -44,7 +51,7 @@
       align-items: center;
       backdrop-filter: blur(20px);
       background: rgba(0, 0, 0, 0.7);
-      border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+      border-bottom: 1px solid rgba(68, 136, 255, 0.2);
       z-index: 100;
     }
     .logo {

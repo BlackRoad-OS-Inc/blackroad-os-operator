@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BlackRoad OS | Desktop Environment</title>
   <meta name="description" content="The browser-based operating system. Every creative tool is a window. Lucidia orchestrates everything through conversation.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FF0066'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FF2255'/></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --br-sunrise: #FF9D00;
-      --br-hot-pink: #FF0066;
-      --br-vivid-purple: #7700FF;
-      --br-cyber-blue: #0066FF;
-      --br-cyan: #00CCFF;
+      --br-sunrise: #FF6B2B; /* Ember — approved 03/05/26 */
+      --br-hot-pink: #FF2255; /* Fuse — approved 03/05/26 */
+      --br-vivid-purple: #8844FF; /* Drift — approved 03/05/26 */
+      --br-cyber-blue: #4488FF; /* Signal — approved 03/05/26 */
+      --br-cyan: #00D4FF; /* Arc — approved 03/05/26 */
       --br-green: #00FF88;
       --br-black: #050508;
       --br-surface: #0d0d12;
@@ -463,7 +463,7 @@
   <div class="desktop" id="desktop">
     <div class="desktop-icons">
       <div class="desktop-icon" ondblclick="openWindow('lucidia')">
-        <div class="icon-image" style="background: linear-gradient(135deg, #00CCFF, #8855FF);">L</div>
+        <div class="icon-image" style="background: linear-gradient(135deg, #00D4FF, #8844FF);">L</div>
         <span class="icon-label">Lucidia AI</span>
       </div>
       <div class="desktop-icon" ondblclick="openWindow('studio')">
@@ -471,19 +471,19 @@
         <span class="icon-label">Studio</span>
       </div>
       <div class="desktop-icon" ondblclick="openWindow('network')">
-        <div class="icon-image" style="background: linear-gradient(135deg, #0066FF, #00CCFF);">N</div>
+        <div class="icon-image" style="background: linear-gradient(135deg, #4488FF, #00D4FF);">N</div>
         <span class="icon-label">Network</span>
       </div>
       <div class="desktop-icon" ondblclick="openWindow('quantum')">
-        <div class="icon-image" style="background: linear-gradient(135deg, #D600AA, #7700FF);">Q</div>
+        <div class="icon-image" style="background: linear-gradient(135deg, #CC00AA, #8844FF);">Q</div>
         <span class="icon-label">Quantum</span>
       </div>
       <div class="desktop-icon" ondblclick="openWindow('ai')">
-        <div class="icon-image" style="background: linear-gradient(135deg, #7700FF, #0066FF);">AI</div>
+        <div class="icon-image" style="background: linear-gradient(135deg, #8844FF, #4488FF);">AI</div>
         <span class="icon-label">BlackRoad AI</span>
       </div>
       <div class="desktop-icon" ondblclick="openWindow('roadwork')">
-        <div class="icon-image" style="background: linear-gradient(135deg, #FF9D00, #FFDD00);">RW</div>
+        <div class="icon-image" style="background: linear-gradient(135deg, #FF6B2B, #FF2255);">RW</div>
         <span class="icon-label">RoadWork</span>
       </div>
     </div>
@@ -533,7 +533,7 @@
       <div class="start-menu-title">Pinned</div>
       <div class="start-menu-grid">
         <div class="start-menu-item" onclick="openWindow('lucidia'); toggleStartMenu();">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #00CCFF, #8855FF);">L</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #00D4FF, #8844FF);">L</div>
           <span class="start-menu-item-label">Lucidia AI</span>
         </div>
         <div class="start-menu-item" onclick="openWindow('studio'); toggleStartMenu();">
@@ -541,31 +541,31 @@
           <span class="start-menu-item-label">Studio</span>
         </div>
         <div class="start-menu-item" onclick="openWindow('network'); toggleStartMenu();">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #0066FF, #00CCFF);">N</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #4488FF, #00D4FF);">N</div>
           <span class="start-menu-item-label">Network</span>
         </div>
         <div class="start-menu-item" onclick="openWindow('quantum'); toggleStartMenu();">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #D600AA, #7700FF);">Q</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #CC00AA, #8844FF);">Q</div>
           <span class="start-menu-item-label">Quantum</span>
         </div>
         <div class="start-menu-item" onclick="openWindow('ai'); toggleStartMenu();">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #7700FF, #0066FF);">AI</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #8844FF, #4488FF);">AI</div>
           <span class="start-menu-item-label">BlackRoad AI</span>
         </div>
         <div class="start-menu-item" onclick="openWindow('roadwork'); toggleStartMenu();">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF9D00, #FFDD00);">RW</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF6B2B, #FF2255);">RW</div>
           <span class="start-menu-item-label">RoadWork</span>
         </div>
         <div class="start-menu-item" onclick="alert('Coming soon!')">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF9D00, #FF0066);">M</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF6B2B, #FF2255);">M</div>
           <span class="start-menu-item-label">Music</span>
         </div>
         <div class="start-menu-item" onclick="alert('Coming soon!')">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #00FF88, #00CCFF);">R</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #00D4FF, #4488FF);">R</div>
           <span class="start-menu-item-label">RoadChain</span>
         </div>
         <div class="start-menu-item" onclick="alert('Coming soon!')">
-          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF5555, #FF9D00);">MK</div>
+          <div class="start-menu-item-icon" style="background: linear-gradient(135deg, #FF2255, #FF6B2B);">MK</div>
           <span class="start-menu-item-label">Marketplace</span>
         </div>
       </div>
@@ -646,12 +646,12 @@
 
     // Window Management
     const apps = {
-      lucidia: { title: 'Lucidia AI', icon: 'L', color: 'linear-gradient(135deg, #00CCFF, #8855FF)', url: '/lucidia-earth/' },
+      lucidia: { title: 'Lucidia AI', icon: 'L', color: 'linear-gradient(135deg, #00D4FF, #8844FF)', url: '/lucidia-earth/' },
       studio: { title: 'Lucidia Studio', icon: 'S', color: 'linear-gradient(135deg, #8855FF, #FF55AA)', url: '/lucidia-studio/' },
-      network: { title: 'BlackRoad Network', icon: 'N', color: 'linear-gradient(135deg, #0066FF, #00CCFF)', url: '/blackroad-network/' },
-      quantum: { title: 'BlackRoad Quantum', icon: 'Q', color: 'linear-gradient(135deg, #D600AA, #7700FF)', url: '/blackroadquantum/' },
-      ai: { title: 'BlackRoad AI', icon: 'AI', color: 'linear-gradient(135deg, #7700FF, #0066FF)', url: '/blackroadai/' },
-      roadwork: { title: 'RoadWork', icon: 'RW', color: 'linear-gradient(135deg, #FF9D00, #FFDD00)', url: '/roadwork/' },
+      network: { title: 'BlackRoad Network', icon: 'N', color: 'linear-gradient(135deg, #4488FF, #00D4FF)', url: '/blackroad-network/' },
+      quantum: { title: 'BlackRoad Quantum', icon: 'Q', color: 'linear-gradient(135deg, #CC00AA, #8844FF)', url: '/blackroadquantum/' },
+      ai: { title: 'BlackRoad AI', icon: 'AI', color: 'linear-gradient(135deg, #8844FF, #4488FF)', url: '/blackroadai/' },
+      roadwork: { title: 'RoadWork', icon: 'RW', color: 'linear-gradient(135deg, #FF6B2B, #FF2255)', url: '/roadwork/' },
     };
 
     const openWindows = {};

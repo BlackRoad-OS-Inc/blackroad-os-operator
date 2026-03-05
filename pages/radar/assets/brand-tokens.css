@@ -1,6 +1,6 @@
 /**
  * BlackRoad Brand Tokens
- * Neon Palette System
+ * Approved Brand Palette — 03/05/26
  *
  * @owner Alexa Louise Amundson
  * @system BlackRoad OS
@@ -8,15 +8,24 @@
 
 :root {
   /* ═══════════════════════════════════════════════════════
-     PRIMARY NEON PALETTE
+     APPROVED ACCENT PALETTE (03/05/26)
      ═══════════════════════════════════════════════════════ */
-  --br-orange:        #FF9D00;
-  --br-deep-orange:   #FF6B00;
-  --br-hot-pink:      #FF0066;
-  --br-magenta:       #FF006B;
-  --br-purple:        #D600AA;
-  --br-violet:        #7700FF;
-  --br-blue:          #0066FF;
+  --br-accent-1:      #FF6B2B;  /* Ember   — –accent-1 */
+  --br-accent-2:      #FF2255;  /* Fuse    — –accent-2 */
+  --br-accent-3:      #CC00AA;  /* Pulse   — –accent-3 */
+  --br-accent-4:      #8844FF;  /* Drift   — –accent-4 */
+  --br-accent-5:      #4488FF;  /* Signal  — –accent-5 */
+  --br-accent-6:      #00D4FF;  /* Arc     — –accent-6 */
+
+  /* Legacy aliases — mapped to nearest approved color */
+  --br-orange:        #FF6B2B;  /* → Ember */
+  --br-deep-orange:   #FF6B2B;  /* → Ember */
+  --br-hot-pink:      #FF2255;  /* → Fuse  */
+  --br-magenta:       #CC00AA;  /* → Pulse */
+  --br-purple:        #CC00AA;  /* → Pulse */
+  --br-violet:        #8844FF;  /* → Drift */
+  --br-blue:          #4488FF;  /* → Signal */
+  --br-cyan:          #00D4FF;  /* → Arc   */
 
   /* ═══════════════════════════════════════════════════════
      BACKGROUND TONES
@@ -29,33 +38,41 @@
   /* ═══════════════════════════════════════════════════════
      GRADIENTS
      ═══════════════════════════════════════════════════════ */
+  --br-gradient-brand: linear-gradient(
+    90deg,
+    var(--br-accent-1),
+    var(--br-accent-2),
+    var(--br-accent-3),
+    var(--br-accent-4),
+    var(--br-accent-5),
+    var(--br-accent-6)
+  );
+
   --br-gradient-hero: linear-gradient(
     135deg,
-    var(--br-orange),
-    var(--br-hot-pink),
-    var(--br-violet),
-    var(--br-blue)
+    var(--br-accent-1),
+    var(--br-accent-2),
+    var(--br-accent-4),
+    var(--br-accent-5)
   );
 
   --br-gradient-sunset: linear-gradient(
     90deg,
-    var(--br-orange),
-    var(--br-deep-orange),
-    var(--br-hot-pink),
-    var(--br-magenta)
+    var(--br-accent-1),
+    var(--br-accent-2),
+    var(--br-accent-3)
   );
 
   --br-gradient-neon: linear-gradient(
     180deg,
-    var(--br-violet),
-    var(--br-purple),
-    var(--br-magenta)
+    var(--br-accent-4),
+    var(--br-accent-3)
   );
 
   --br-gradient-cold: linear-gradient(
     135deg,
-    var(--br-blue),
-    var(--br-violet)
+    var(--br-accent-5),
+    var(--br-accent-4)
   );
 
   /* ═══════════════════════════════════════════════════════
@@ -77,11 +94,12 @@
   /* ═══════════════════════════════════════════════════════
      GLOW EFFECTS (box-shadow / text-shadow)
      ═══════════════════════════════════════════════════════ */
-  --br-glow-orange:  0 0 20px rgba(255, 157, 0, 0.5);
-  --br-glow-pink:    0 0 20px rgba(255, 0, 102, 0.5);
-  --br-glow-violet:  0 0 20px rgba(119, 0, 255, 0.5);
-  --br-glow-blue:    0 0 20px rgba(0, 102, 255, 0.5);
-  --br-glow-magenta: 0 0 20px rgba(255, 0, 107, 0.5);
+  --br-glow-orange:  0 0 20px rgba(255, 107, 43, 0.5);   /* Ember  */
+  --br-glow-pink:    0 0 20px rgba(255, 34, 85, 0.5);    /* Fuse   */
+  --br-glow-violet:  0 0 20px rgba(136, 68, 255, 0.5);   /* Drift  */
+  --br-glow-blue:    0 0 20px rgba(68, 136, 255, 0.5);   /* Signal */
+  --br-glow-magenta: 0 0 20px rgba(204, 0, 170, 0.5);    /* Pulse  */
+  --br-glow-cyan:    0 0 20px rgba(0, 212, 255, 0.5);    /* Arc    */
 
   /* ═══════════════════════════════════════════════════════
      TYPOGRAPHY

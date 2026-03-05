@@ -11,11 +11,15 @@
       --border: #222;
       --text: #eee;
       --muted: #888;
-      --accent: #FF6B00;
-      --accent2: #FF0066;
-      --purple: #7700FF;
-      --blue: #0066FF;
+      /* Approved brand colors 03/05/26 */
+      --accent: #FF6B2B;
+      --accent2: #FF2255;
+      --purple: #8844FF;
+      --blue: #4488FF;
+      --cyan: #00D4FF;
+      --magenta: #CC00AA;
       --green: #22c55e;
+      --gradient: linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -70,7 +74,7 @@
       -webkit-text-fill-color: transparent;
     }
     .logo-alice {
-      background: linear-gradient(135deg, #FF9D00, var(--accent));
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -307,7 +311,7 @@
       background: radial-gradient(ellipse at center top, rgba(255,157,0,0.15) 0%, transparent 50%);
     }
     .alice .stat-value {
-      background: linear-gradient(135deg, #FF9D00, var(--accent));
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
       -webkit-background-clip: text;
     }
 
