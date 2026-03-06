@@ -11,7 +11,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Set
 from uuid import uuid4
 from datetime import datetime
-import asyncio
 
 from .vector_clock import VectorClock
 from .crdt import CRDT, RGA, LWWRegister, ORSet

@@ -464,7 +464,7 @@ if __name__ == "__main__":
 
     # Create verification stamp
     stamp = create_verification_stamp(cipher, "Demo")
-    print(f"\nVerification stamp:")
+    print("\nVerification stamp:")
     for k, v in stamp.items():
         print(f"  {k}: {v}")
 

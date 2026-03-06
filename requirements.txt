@@ -13,7 +13,6 @@ sqlalchemy[asyncio]==2.0.36
 
 # LLM Providers
 openai>=1.0.0
-ollama>=0.4.0
 
 # Vector/Embeddings
 numpy==1.26.4

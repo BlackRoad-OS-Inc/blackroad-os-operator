@@ -31,9 +31,7 @@ from br_operator.models.intent import (
     StepStatus,
 )
 from br_operator.models.policy import (
-    LedgerLevel,
     PolicyContext,
-    PolicyEffect,
     PolicyEvaluateRequest,
     RequestMetadata,
     Resource,
@@ -336,7 +334,7 @@ class IntentService:
         if sequence_num > 1:
             prev_step = next((s for s in steps if s.sequence_num == sequence_num - 1), None)
             if not prev_step or prev_step.status != StepStatus.COMPLETED:
-                raise ValueError(f"Previous step not completed")
+                raise ValueError("Previous step not completed")
 
         # Update intent to in_progress if pending
         if intent.state == IntentState.PENDING:

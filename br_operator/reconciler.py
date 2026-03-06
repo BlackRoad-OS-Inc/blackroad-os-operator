@@ -8,7 +8,6 @@ Reconciles desired state vs actual state and manages worker scaling.
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Any, Optional
 import asyncpg
 import aioredis

@@ -4,15 +4,13 @@ Receives Linear webhook events and routes to AI workflow engine
 """
 
 import logging
-from typing import Dict, Any
 
 from fastapi import APIRouter, Request, HTTPException, Header
 from fastapi.responses import JSONResponse
 
 from .ai_workflow_engine import (
     get_ai_workflow_engine,
-    WorkflowTrigger,
-    AIWorkflowResult
+    WorkflowTrigger
 )
 
 logger = logging.getLogger(__name__)

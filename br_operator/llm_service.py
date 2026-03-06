@@ -21,8 +21,8 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from .llm_client import (
-    LLMClient, LLMMessage, LLMResult, get_llm_client,
-    OllamaClient, get_ollama_client, detect_ollama_mention,
+    LLMMessage, LLMResult, get_llm_client,
+    get_ollama_client, detect_ollama_mention,
     DEFAULT_OLLAMA_URL,
 )
 from .traced_http import TracedAsyncClient

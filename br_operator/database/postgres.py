@@ -137,7 +137,6 @@ class Database:
 
     async def run_migrations(self, migrations_path: str = "migrations") -> None:
         """Run database migrations."""
-        import os
         from pathlib import Path
 
         migrations_dir = Path(migrations_path)

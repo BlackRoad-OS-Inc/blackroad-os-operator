@@ -250,7 +250,7 @@ class GossipProtocol:
         while self._running:
             try:
                 await self.gossip_round()
-            except Exception as e:
+            except Exception:
                 # Log error but keep running
                 pass
 

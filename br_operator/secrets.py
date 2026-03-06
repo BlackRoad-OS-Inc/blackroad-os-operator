@@ -429,8 +429,6 @@ def get_redis_url() -> Optional[str]:
 # =============================================================================
 
 if __name__ == "__main__":
-    import json
-    import sys
 
     print("BlackRoad OS - Credentials Registry")
     print("=" * 60)

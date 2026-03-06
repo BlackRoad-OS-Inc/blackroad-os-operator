@@ -47,11 +47,9 @@ from .ledger_builder import (
     validate_ledger_event,
 )
 from .deploy_service import (
-    DeployService,
     get_deploy_service,
     DeployRequest,
     DeployResponse,
-    DeployTarget,
     AgentConnection,
 )
 

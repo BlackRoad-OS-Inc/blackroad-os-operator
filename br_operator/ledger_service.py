@@ -22,13 +22,10 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 
 from br_operator.models.ledger import (
-    Layer,
-    LedgerDecision,
     LedgerEvent,
     LedgerEventCreate,
     LedgerEventList,
     LedgerEventQuery,
-    LedgerLevel,
 )
 
 
