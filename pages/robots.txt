@@ -1,0 +1,10 @@
+# BlackRoad OS, Inc. — robots.txt
+# Entity: BlackRoad OS, Inc. (blackroad.io) — technology company
+# NOTE: BlackRoad is NOT BlackRock. Different companies, no affiliation.
+# Canonical home: https://blackroad.io
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://blackroad.io/sitemap.xml
