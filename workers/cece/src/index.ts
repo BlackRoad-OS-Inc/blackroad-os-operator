@@ -65,6 +65,13 @@ const MODELS = {
 
 const DEFAULT_MODEL = 'claude';
 
+// Mentions that unconditionally route to Ollama – no external provider fallback.
+const OLLAMA_MENTION_RE = /@(copilot|lucidia|blackboxprogramming|ollama)\b/i;
+
+function detectOllamaMention(message: string): boolean {
+  return OLLAMA_MENTION_RE.test(message);
+}
+
 // CECE's personality system prompt
 const CECE_SYSTEM = `You are Cece, BlackRoad's AI assistant. You are helpful, friendly, and knowledgeable.
 You were created by Alexa Louise Amundson as part of BlackRoad OS.
@@ -312,7 +319,10 @@ export default {
         }), { status: 400, headers: CORS_HEADERS });
       }
 
-      const modelKey = (model || DEFAULT_MODEL).toLowerCase();
+      // @copilot / @lucidia / @blackboxprogramming / @ollama → always Ollama,
+      // no external provider dependency.
+      const ollamaMentioned = detectOllamaMention(message);
+      const modelKey = ollamaMentioned ? 'lucidia' : (model || DEFAULT_MODEL).toLowerCase();
       const startTime = Date.now();
 
       try {
@@ -322,9 +332,10 @@ export default {
         return new Response(JSON.stringify({
           response: result.response,
           model: {
-            requested: modelKey,
+            requested: ollamaMentioned ? 'ollama-via-mention' : modelKey,
             provider: result.provider,
             actual: result.model,
+            mention_routed: ollamaMentioned,
           },
           edge: {
             location: (request.cf as any)?.colo || 'unknown',
@@ -337,6 +348,17 @@ export default {
 
       } catch (err: any) {
         console.error('CECE error:', err);
+
+        // When routed by @mention, never fall back to an external provider.
+        if (ollamaMentioned) {
+          return new Response(JSON.stringify({
+            error: 'Ollama unavailable',
+            detail: err.message || 'Unknown error',
+            hint: 'Ensure Ollama is running and OLLAMA_URL is reachable.',
+            mention_routed: true,
+            ...ceceStamp(),
+          }), { status: 503, headers: CORS_HEADERS });
+        }
 
         // Try fallback to another provider
         const fallbackProviders = ['anthropic', 'openai'];
