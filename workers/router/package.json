@@ -12,6 +12,6 @@
   "author": "BlackRoad OS",
   "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.114.17"
   }
 }
