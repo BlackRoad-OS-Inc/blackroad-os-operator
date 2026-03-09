@@ -2,11 +2,14 @@
 LLM Service - Handles communication with LLM providers via LLMClient
 Hero Flow #1 & #2 for BlackRoad OS Operator Engine
 
-Hero Flow #1: User → Operator → OpenAI → Response
-Hero Flow #2: User → Operator → RAG API → OpenAI → Response
+Hero Flow #1: User → Operator → LLM (Ollama or OpenAI) → Response
+Hero Flow #2: User → Operator → RAG API → LLM (Ollama or OpenAI) → Response
+
+Set LLM_PROVIDER=ollama to run fully local with no external dependencies.
+Set LLM_PROVIDER=openai (default) to use OpenAI cloud.
 
 @owner Alexa Louise Amundson
-@amundson 0.1.0
+@amundson 0.2.0
 """
 
 from __future__ import annotations

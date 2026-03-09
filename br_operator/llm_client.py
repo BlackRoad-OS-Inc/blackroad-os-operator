@@ -1,11 +1,11 @@
 """
-LLM Client - OpenAI API wrapper for BlackRoad OS Operator
+LLM Client - Multi-provider LLM wrapper for BlackRoad OS Operator
 
-Provides a clean interface for LLM calls with structured tracing.
-Uses the secrets resolver for API key management.
+Supports Ollama (local, no API key) and OpenAI (cloud).
+Set LLM_PROVIDER=ollama to run fully local with no external dependencies.
 
 @owner Alexa Louise Amundson
-@amundson 0.1.0
+@amundson 0.2.0
 """
 
 from __future__ import annotations
@@ -13,12 +13,13 @@ from __future__ import annotations
 import os
 import re
 import time
-from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from dataclasses import dataclass
+from typing import List, Literal, Optional, Union
 
+import ollama as ollama_lib
 from openai import OpenAI
 
-from .secrets import resolve_secret, get_secret, SecretNotFoundError
+from .secrets import resolve_secret, SecretNotFoundError
 
 # =============================================================================
 # Ollama mention detection
@@ -70,6 +71,74 @@ class LLMResult:
 
     reply: str
     trace: LLMTrace
+
+
+class OllamaClient:
+    """Local Ollama LLM client - no API key required."""
+
+    def __init__(
+        self,
+        host: Optional[str] = None,
+        model: Optional[str] = None,
+    ):
+        self.host = host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.2")
+        # base_url is exposed so check_llm_health() can read it uniformly
+        self.base_url = self.host
+        self._client = ollama_lib.Client(host=self.host)
+
+    def chat(
+        self,
+        messages: List[LLMMessage],
+        model: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+    ) -> LLMResult:
+        """
+        Send a chat request to the local Ollama instance.
+
+        Args:
+            messages: List of LLMMessage objects
+            model: Override the default model
+            temperature: Sampling temperature (0.0 to 1.0)
+            max_tokens: Maximum tokens in response
+
+        Returns:
+            LLMResult with reply and trace
+        """
+        start_time = time.time()
+
+        ollama_messages = [
+            {"role": msg.role, "content": msg.content} for msg in messages
+        ]
+
+        options: dict = {"temperature": temperature}
+        if max_tokens:
+            options["num_predict"] = max_tokens
+
+        response = self._client.chat(
+            model=model or self.model,
+            messages=ollama_messages,
+            options=options,
+        )
+
+        response_time_ms = (time.time() - start_time) * 1000
+
+        # Extract token counts from Ollama response
+        tokens_in = getattr(response, "prompt_eval_count", None)
+        tokens_out = getattr(response, "eval_count", None)
+
+        trace = LLMTrace(
+            llm_provider="ollama",
+            model=response.model,
+            response_time_ms=round(response_time_ms, 2),
+            used_rag=False,
+            raw_tokens_in=tokens_in,
+            raw_tokens_out=tokens_out,
+        )
+
+        reply = response.message.content or ""
+        return LLMResult(reply=reply.strip(), trace=trace)
 
 
 class LLMClient:
@@ -165,14 +234,23 @@ class LLMClient:
 
 
 # Singleton instance
-_llm_client: Optional[LLMClient] = None
+_llm_client: Optional[Union[LLMClient, OllamaClient]] = None
 
 
-def get_llm_client() -> LLMClient:
-    """Get or create the singleton LLM client."""
+def get_llm_client() -> Union[LLMClient, OllamaClient]:
+    """
+    Get or create the singleton LLM client.
+
+    Set LLM_PROVIDER=ollama to use local Ollama (no API key needed).
+    Set LLM_PROVIDER=openai (default) to use OpenAI.
+    """
     global _llm_client
     if _llm_client is None:
-        _llm_client = LLMClient()
+        provider = os.getenv("LLM_PROVIDER", "openai").lower()
+        if provider == "ollama":
+            _llm_client = OllamaClient()
+        else:
+            _llm_client = LLMClient()
     return _llm_client
 
 
