@@ -10,7 +10,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.114.17"
   },
   "keywords": ["blackroad", "billing", "stripe", "cloudflare-workers"],
   "author": "Alexa Louise Amundson",
