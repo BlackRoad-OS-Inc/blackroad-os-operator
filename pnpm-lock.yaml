@@ -53,8 +53,8 @@ devDependencies:
     specifier: ^13.1.3
     version: 13.1.3
   prettier:
-    specifier: ^3.3.3
-    version: 3.6.2
+    specifier: ^3.8.1
+    version: 3.8.1
   tsx:
     specifier: ^4.19.1
     version: 4.20.6
@@ -3155,8 +3155,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier@3.6.2:
-    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+  /prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
