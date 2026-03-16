@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "bullmq": "^5.7.12",
+    "bullmq": "^5.71.0",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.2",
     "ioredis": "^5.4.1",
