@@ -42,6 +42,22 @@ export interface OperatorConfig {
 
   /** RAG API URL for context retrieval */
   ragApiUrl: string;
+
+
+  /** Stripe API key for E2E integration checks */
+  stripeApiKey: string;
+
+  /** Slack bot token for E2E integration checks */
+  slackBotToken: string;
+
+  /** Railway API token for E2E integration checks */
+  railwayApiToken: string;
+
+  /** Cloudflare API token for E2E integration checks */
+  cloudflareApiToken: string;
+
+  /** Gitea API token for E2E integration checks */
+  giteaToken: string;
 }
 
 /**
@@ -63,6 +79,11 @@ export function getConfig(): OperatorConfig {
     ollamaUrl: process.env.OLLAMA_URL ?? 'http://gpt-oss-model.railway.internal:11434',
     ollamaModel: process.env.OLLAMA_MODEL ?? 'llama3.2:1b',
     ragApiUrl: process.env.RAG_API_URL ?? 'http://rag-api.railway.internal:8000',
+    stripeApiKey: process.env.STRIPE_API_KEY ?? '',
+    slackBotToken: process.env.SLACK_BOT_TOKEN ?? '',
+    railwayApiToken: process.env.RAILWAY_API_TOKEN ?? '',
+    cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN ?? '',
+    giteaToken: process.env.GITEA_TOKEN ?? '',
   };
 
   // Validate critical values

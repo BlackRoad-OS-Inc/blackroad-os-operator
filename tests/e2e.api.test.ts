@@ -5,11 +5,17 @@ import { clearEvents, emitJobStarted } from '../src/utils/eventBus.js';
 
 const mockGenerateChatResponse = vi.fn();
 const mockCheckLlmHealth = vi.fn();
+const mockRunIntegrationE2E = vi.fn();
 const mockPing = vi.fn();
 
 vi.mock('../src/services/llm.service.js', () => ({
   generateChatResponse: mockGenerateChatResponse,
   checkLlmHealth: mockCheckLlmHealth,
+}));
+
+
+vi.mock('../src/services/integrations.service.js', () => ({
+  runIntegrationE2E: mockRunIntegrationE2E,
 }));
 
 vi.mock('../src/queues/index.js', () => ({
@@ -25,6 +31,7 @@ describe('E2E API routes', () => {
     clearEvents();
     mockGenerateChatResponse.mockReset();
     mockCheckLlmHealth.mockReset();
+    mockRunIntegrationE2E.mockReset();
     mockPing.mockReset();
 
     const { buildApp } = await import('../src/app.js');
@@ -182,6 +189,80 @@ describe('E2E API routes', () => {
       healthy: true,
       models: ['llama-test'],
     });
+  });
+
+
+  it('runs full integration e2e checks', async () => {
+    mockRunIntegrationE2E.mockResolvedValue({
+      ok: true,
+      dryRun: false,
+      results: [
+        { provider: 'stripe', ok: true, status: 200, latencyMs: 10, detail: 'reachable' },
+        { provider: 'git', ok: true, status: 200, latencyMs: 11, detail: 'reachable' },
+        { provider: 'slack', ok: true, status: 200, latencyMs: 12, detail: 'reachable' },
+        { provider: 'railway', ok: true, status: 200, latencyMs: 13, detail: 'reachable' },
+        { provider: 'pis', ok: true, status: 200, latencyMs: 14, detail: 'reachable' },
+        { provider: 'cloudflare', ok: true, status: 200, latencyMs: 15, detail: 'reachable' },
+        { provider: 'gitea', ok: true, status: 200, latencyMs: 16, detail: 'reachable' },
+      ],
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/integrations/e2e',
+      payload: {
+        providers: ['stripe', 'git', 'slack', 'railway', 'pis', 'cloudflare', 'gitea'],
+        dryRun: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mockRunIntegrationE2E).toHaveBeenCalledWith({
+      providers: ['stripe', 'git', 'slack', 'railway', 'pis', 'cloudflare', 'gitea'],
+      dryRun: false,
+    });
+
+    expect(response.json()).toMatchObject({
+      service: 'blackroad-os-operator',
+      ok: true,
+      dryRun: false,
+    });
+  });
+
+  it('rejects invalid integration providers', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/integrations/e2e',
+      payload: {
+        providers: ['stripe', 'nope'],
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({
+      error: 'Bad Request',
+    });
+  });
+
+  it('supports dry-run mode for all integrations', async () => {
+    mockRunIntegrationE2E.mockResolvedValue({
+      ok: true,
+      dryRun: true,
+      results: [],
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/integrations/e2e',
+      payload: { dryRun: true },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mockRunIntegrationE2E).toHaveBeenCalledWith({
+      providers: ['stripe', 'git', 'slack', 'railway', 'pis', 'cloudflare', 'gitea'],
+      dryRun: true,
+    });
+    expect(response.json()).toMatchObject({ dryRun: true });
   });
 
   it('returns recent domain events', async () => {

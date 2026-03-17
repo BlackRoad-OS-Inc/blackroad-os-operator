@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { OperatorConfig } from './config.js';
 import { getConfig } from './config.js';
 import { connection } from './queues/index.js';
+import { runIntegrationE2E, type IntegrationProvider } from './services/integrations.service.js';
 import { checkLlmHealth, generateChatResponse, type ChatRequest } from './services/llm.service.js';
 import { getEventCount, getRecentEvents } from './utils/eventBus.js';
 import logger from './utils/logger.js';
@@ -11,6 +12,11 @@ interface ChatRequestBody {
   message: string;
   userId?: string;
   model?: string;
+}
+
+interface IntegrationRequestBody {
+  providers?: IntegrationProvider[];
+  dryRun?: boolean;
 }
 
 export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance {
@@ -91,6 +97,48 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
       configured_model: config.ollamaModel,
       ollama_url: config.ollamaUrl,
       ...health
+    };
+  });
+
+
+  app.post<{ Body: IntegrationRequestBody }>('/integrations/e2e', async (request, reply) => {
+    const providers = request.body.providers ?? [
+      'stripe',
+      'git',
+      'slack',
+      'railway',
+      'pis',
+      'cloudflare',
+      'gitea',
+    ];
+
+    const allowedProviders: IntegrationProvider[] = [
+      'stripe',
+      'git',
+      'slack',
+      'railway',
+      'pis',
+      'cloudflare',
+      'gitea',
+    ];
+
+    const invalid = providers.filter((provider) => !allowedProviders.includes(provider));
+
+    if (invalid.length > 0) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: `Invalid provider(s): ${invalid.join(', ')}`,
+      });
+    }
+
+    const result = await runIntegrationE2E({
+      providers,
+      dryRun: request.body.dryRun ?? false,
+    });
+
+    return {
+      service: 'blackroad-os-operator',
+      ...result,
     };
   });
 
