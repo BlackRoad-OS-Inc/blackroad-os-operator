@@ -19,8 +19,66 @@ interface IntegrationRequestBody {
   dryRun?: boolean;
 }
 
+const integrationProviders: IntegrationProvider[] = [
+  'stripe',
+  'git',
+  'slack',
+  'railway',
+  'pis',
+  'cloudflare',
+  'gitea',
+];
+
+const chatBodySchema = {
+  type: 'object',
+  required: ['message'],
+  additionalProperties: false,
+  properties: {
+    message: { type: 'string', minLength: 1 },
+    userId: { type: 'string' },
+    model: { type: 'string' },
+  },
+} as const;
+
+const integrationsBodySchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    providers: {
+      type: 'array',
+      minItems: 1,
+      items: { type: 'string', enum: integrationProviders },
+      uniqueItems: true,
+    },
+    dryRun: { type: 'boolean' },
+  },
+} as const;
+
 export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance {
   const app = Fastify({ loggerInstance: logger });
+
+  app.addHook('onRequest', async (request, reply) => {
+    reply.header('x-request-id', request.id);
+  });
+
+  app.setErrorHandler((error, request, reply) => {
+    const statusCode = error.statusCode ?? 500;
+    const isValidationError = Boolean((error as { validation?: unknown }).validation);
+
+    const payload = {
+      error: {
+        code: isValidationError ? 'VALIDATION_ERROR' : statusCode >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST',
+        message: statusCode >= 500 ? 'Internal Server Error' : error.message,
+        traceId: request.id,
+      },
+    };
+
+    if (statusCode >= 500) {
+      request.log.error({ err: error }, 'request failed');
+    }
+
+    reply.status(statusCode).send(payload);
+  });
 
   app.get('/health', async () => ({
     ok: true,
@@ -57,7 +115,7 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
     env: config.brOsEnv
   }));
 
-  app.post<{ Body: ChatRequestBody }>('/chat', async (request, reply) => {
+  app.post<{ Body: ChatRequestBody }>('/chat', { schema: { body: chatBodySchema } }, async (request, reply) => {
     const { message, userId, model } = request.body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -99,37 +157,11 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
       ...health
     };
   });
-
-
-  app.post<{ Body: IntegrationRequestBody }>('/integrations/e2e', async (request, reply) => {
-    const providers = request.body.providers ?? [
-      'stripe',
-      'git',
-      'slack',
-      'railway',
-      'pis',
-      'cloudflare',
-      'gitea',
-    ];
-
-    const allowedProviders: IntegrationProvider[] = [
-      'stripe',
-      'git',
-      'slack',
-      'railway',
-      'pis',
-      'cloudflare',
-      'gitea',
-    ];
-
-    const invalid = providers.filter((provider) => !allowedProviders.includes(provider));
-
-    if (invalid.length > 0) {
-      return reply.status(400).send({
-        error: 'Bad Request',
-        message: `Invalid provider(s): ${invalid.join(', ')}`,
-      });
-    }
+  app.post<{ Body: IntegrationRequestBody }>(
+    '/integrations/e2e',
+    { schema: { body: integrationsBodySchema } },
+    async (request) => {
+    const providers = request.body.providers ?? integrationProviders;
 
     const result = await runIntegrationE2E({
       providers,

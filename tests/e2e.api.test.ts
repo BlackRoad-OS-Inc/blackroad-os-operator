@@ -66,9 +66,25 @@ describe('E2E API routes', () => {
     const response = await app.inject({ method: 'GET', url: '/health' });
 
     expect(response.statusCode).toBe(200);
+    expect(response.headers['x-request-id']).toBeDefined();
     expect(response.json()).toMatchObject({
       ok: true,
       service: 'blackroad-os-operator',
+    });
+  });
+
+  it('returns typed validation errors for invalid chat payload shape', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/chat',
+      payload: { wrong: 'field' },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({
+      error: {
+        code: 'VALIDATION_ERROR',
+      },
     });
   });
 
@@ -240,7 +256,9 @@ describe('E2E API routes', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.json()).toMatchObject({
-      error: 'Bad Request',
+      error: {
+        code: 'VALIDATION_ERROR',
+      },
     });
   });
 
