@@ -74,6 +74,58 @@ describe('E2E API routes', () => {
   });
 
 
+
+  it('enforces API key when auth toggle is enabled', async () => {
+    await app.close();
+
+    const { buildApp } = await import('../src/app.js');
+    app = buildApp({
+      port: 4000,
+      nodeEnv: 'test',
+      brOsEnv: 'test',
+      version: '1.2.3-test',
+      commit: 'deadbeef',
+      redisUrl: 'redis://localhost:6379',
+      logLevel: 'silent',
+      maxConcurrency: 10,
+      defaultTimeoutSeconds: 300,
+      llmProvider: 'ollama',
+      ollamaUrl: 'http://ollama.test:11434',
+      ollamaModel: 'llama-test',
+      ragApiUrl: 'http://rag.test:8000',
+      stripeApiKey: '',
+      slackBotToken: '',
+      railwayApiToken: '',
+      cloudflareApiToken: '',
+      giteaToken: '',
+      enableApiKeyAuth: true,
+      apiKey: 'secret-key',
+    });
+    await app.ready();
+
+    const unauthorized = await app.inject({
+      method: 'POST',
+      url: '/integrations/e2e',
+      payload: { dryRun: true },
+    });
+
+    expect(unauthorized.statusCode).toBe(401);
+    expect(unauthorized.json()).toMatchObject({
+      error: {
+        code: 'UNAUTHORIZED',
+      },
+    });
+
+    const authorized = await app.inject({
+      method: 'POST',
+      url: '/integrations/e2e',
+      headers: { 'x-api-key': 'secret-key' },
+      payload: { dryRun: true },
+    });
+
+    expect(authorized.statusCode).toBe(200);
+  });
+
   it('exposes request metrics counters', async () => {
     await app.inject({ method: 'GET', url: '/health' });
     await app.inject({ method: 'GET', url: '/version' });

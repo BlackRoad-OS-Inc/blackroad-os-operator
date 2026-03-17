@@ -37,6 +37,8 @@ The Fastify app in `src/index.ts` exposes standard service endpoints:
 - `GET /events` - Recent domain events buffered by the operator event bus
 - `POST /integrations/e2e` - Unified backend integration checks for Stripe, Git, Slack, Railway, Pi agents, Cloudflare, and Gitea
 
+Protected routes can require `x-api-key` when `ENABLE_API_KEY_AUTH=true`.
+
 ## Adding New Jobs
 1. Create a new file in `src/jobs/` (e.g., `my-job.job.ts`)
 2. Define your job input type in `src/types/index.ts`

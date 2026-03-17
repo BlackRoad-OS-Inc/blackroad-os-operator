@@ -58,6 +58,12 @@ export interface OperatorConfig {
 
   /** Gitea API token for E2E integration checks */
   giteaToken: string;
+
+  /** Enable API key auth guard for protected routes */
+  enableApiKeyAuth: boolean;
+
+  /** Shared API key for protected routes */
+  apiKey: string;
 }
 
 /**
@@ -84,6 +90,8 @@ export function getConfig(): OperatorConfig {
     railwayApiToken: process.env.RAILWAY_API_TOKEN ?? '',
     cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN ?? '',
     giteaToken: process.env.GITEA_TOKEN ?? '',
+    enableApiKeyAuth: (process.env.ENABLE_API_KEY_AUTH ?? 'false').toLowerCase() === 'true',
+    apiKey: process.env.API_KEY ?? '',
   };
 
   // Validate critical values
@@ -97,6 +105,11 @@ export function getConfig(): OperatorConfig {
 
   if (isNaN(config.defaultTimeoutSeconds) || config.defaultTimeoutSeconds <= 0) {
     throw new Error('Invalid BR_OS_OPERATOR_DEFAULT_TIMEOUT_SECONDS configuration');
+  }
+
+
+  if (config.enableApiKeyAuth && config.apiKey.length === 0) {
+    throw new Error('API_KEY must be set when ENABLE_API_KEY_AUTH=true');
   }
 
   return config;

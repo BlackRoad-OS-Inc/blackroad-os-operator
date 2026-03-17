@@ -68,6 +68,31 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
     reply.header('x-request-id', request.id);
   });
 
+
+  const publicRoutes = new Set(['/health', '/ready', '/version', '/metrics']);
+
+  app.addHook('preHandler', async (request, reply) => {
+    if (!config.enableApiKeyAuth) {
+      return;
+    }
+
+    if (publicRoutes.has(request.routeOptions.url)) {
+      return;
+    }
+
+    const providedApiKey = request.headers['x-api-key'];
+
+    if (providedApiKey !== config.apiKey) {
+      return reply.status(401).send({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Invalid API key',
+          traceId: request.id,
+        },
+      });
+    }
+  });
+
   app.setErrorHandler((error, request, reply) => {
     const statusCode = error.statusCode ?? 500;
     const isValidationError = Boolean((error as { validation?: unknown }).validation);

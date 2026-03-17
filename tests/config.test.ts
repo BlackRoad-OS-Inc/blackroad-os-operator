@@ -80,6 +80,14 @@ describe('config', () => {
       expect(config.redisUrl).toBe('redis://primary-redis:6379');
     });
 
+
+    it('should require API_KEY when API key auth is enabled', () => {
+      process.env.ENABLE_API_KEY_AUTH = 'true';
+      delete process.env.API_KEY;
+
+      expect(() => getConfig()).toThrow('API_KEY must be set when ENABLE_API_KEY_AUTH=true');
+    });
+
     it('should throw error for invalid port', () => {
       process.env.PORT = 'invalid';
 
