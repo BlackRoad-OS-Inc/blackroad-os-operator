@@ -50,6 +50,13 @@ describe('E2E API routes', () => {
       ollamaUrl: 'http://ollama.test:11434',
       ollamaModel: 'llama-test',
       ragApiUrl: 'http://rag.test:8000',
+      stripeApiKey: '',
+      slackBotToken: '',
+      railwayApiToken: '',
+      cloudflareApiToken: '',
+      giteaToken: '',
+      enableApiKeyAuth: false,
+      apiKey: '',
     });
 
     await app.ready();
@@ -74,6 +81,35 @@ describe('E2E API routes', () => {
   });
 
 
+
+
+  it('returns structured startup diagnostics', async () => {
+    const response = await app.inject({ method: 'GET', url: '/diagnostics/startup' });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as {
+      service: string;
+      startedAtIso: string;
+      config: {
+        nodeEnv: string;
+        brOsEnv: string;
+        version: string;
+        commit: string;
+      };
+      integrationsConfigured: Record<string, boolean>;
+    };
+
+    expect(body.service).toBe('blackroad-os-operator');
+    expect(body.config.nodeEnv).toBe('test');
+    expect(body.config.version).toBe('1.2.3-test');
+    expect(body.integrationsConfigured).toMatchObject({
+      stripe: false,
+      slack: false,
+      railway: false,
+      cloudflare: false,
+      gitea: false,
+    });
+  });
 
   it('enforces API key when auth toggle is enabled', async () => {
     await app.close();
@@ -102,6 +138,13 @@ describe('E2E API routes', () => {
       apiKey: 'secret-key',
     });
     await app.ready();
+
+    const diagnostics = await app.inject({
+      method: 'GET',
+      url: '/diagnostics/startup',
+    });
+
+    expect(diagnostics.statusCode).toBe(200);
 
     const unauthorized = await app.inject({
       method: 'POST',

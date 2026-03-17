@@ -34,6 +34,7 @@ The Fastify app in `src/index.ts` exposes standard service endpoints:
 - `GET /ready` - Readiness check (validates config and verifies Redis queue connectivity with PING)
 - `GET /version` - Build and environment metadata
 - `GET /metrics` - Service-level request counters and response status aggregates
+- `GET /diagnostics/startup` - Structured startup diagnostics and configuration posture
 - `GET /events` - Recent domain events buffered by the operator event bus
 - `POST /integrations/e2e` - Unified backend integration checks for Stripe, Git, Slack, Railway, Pi agents, Cloudflare, and Gitea
 

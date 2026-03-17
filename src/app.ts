@@ -64,12 +64,34 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
     responsesByRoute: {} as Record<string, number>,
   };
 
+
+  const startupDiagnostics = {
+    startedAtIso: new Date(startedAt).toISOString(),
+    config: {
+      nodeEnv: config.nodeEnv,
+      brOsEnv: config.brOsEnv,
+      version: config.version,
+      commit: config.commit,
+      llmProvider: config.llmProvider,
+      ollamaModel: config.ollamaModel,
+      redisConfigured: config.redisUrl.length > 0,
+      apiKeyAuthEnabled: config.enableApiKeyAuth,
+    },
+    integrationsConfigured: {
+      stripe: config.stripeApiKey.length > 0,
+      slack: config.slackBotToken.length > 0,
+      railway: config.railwayApiToken.length > 0,
+      cloudflare: config.cloudflareApiToken.length > 0,
+      gitea: config.giteaToken.length > 0,
+    },
+  };
+
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-request-id', request.id);
   });
 
 
-  const publicRoutes = new Set(['/health', '/ready', '/version', '/metrics']);
+  const publicRoutes = new Set(['/health', '/ready', '/version', '/metrics', '/diagnostics/startup']);
 
   app.addHook('preHandler', async (request, reply) => {
     if (!config.enableApiKeyAuth) {
@@ -158,6 +180,13 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
     requestsTotal: metrics.requestsTotal,
     responsesByStatus: metrics.responsesByStatus,
     responsesByRoute: metrics.responsesByRoute,
+  }));
+
+
+  app.get('/diagnostics/startup', async () => ({
+    service: 'blackroad-os-operator',
+    uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
+    ...startupDiagnostics,
   }));
 
   app.get('/version', async () => ({
