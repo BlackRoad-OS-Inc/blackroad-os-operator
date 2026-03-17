@@ -57,6 +57,13 @@ const integrationsBodySchema = {
 export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance {
   const app = Fastify({ loggerInstance: logger });
 
+  const startedAt = Date.now();
+  const metrics = {
+    requestsTotal: 0,
+    responsesByStatus: {} as Record<string, number>,
+    responsesByRoute: {} as Record<string, number>,
+  };
+
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-request-id', request.id);
   });
@@ -78,6 +85,17 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
     }
 
     reply.status(statusCode).send(payload);
+  });
+
+
+  app.addHook('onResponse', async (request, reply) => {
+    metrics.requestsTotal += 1;
+
+    const statusKey = String(reply.statusCode);
+    metrics.responsesByStatus[statusKey] = (metrics.responsesByStatus[statusKey] ?? 0) + 1;
+
+    const routeKey = request.routeOptions.url || request.url;
+    metrics.responsesByRoute[routeKey] = (metrics.responsesByRoute[routeKey] ?? 0) + 1;
   });
 
   app.get('/health', async () => ({
@@ -107,6 +125,15 @@ export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance 
       checks
     };
   });
+
+
+  app.get('/metrics', async () => ({
+    service: 'blackroad-os-operator',
+    uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
+    requestsTotal: metrics.requestsTotal,
+    responsesByStatus: metrics.responsesByStatus,
+    responsesByRoute: metrics.responsesByRoute,
+  }));
 
   app.get('/version', async () => ({
     service: 'blackroad-os-operator',

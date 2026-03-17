@@ -73,6 +73,32 @@ describe('E2E API routes', () => {
     });
   });
 
+
+  it('exposes request metrics counters', async () => {
+    await app.inject({ method: 'GET', url: '/health' });
+    await app.inject({ method: 'GET', url: '/version' });
+
+    const firstMetrics = await app.inject({ method: 'GET', url: '/metrics' });
+    const response = await app.inject({ method: 'GET', url: '/metrics' });
+
+    expect(firstMetrics.statusCode).toBe(200);
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as {
+      service: string;
+      requestsTotal: number;
+      responsesByStatus: Record<string, number>;
+      responsesByRoute: Record<string, number>;
+      uptimeSeconds: number;
+    };
+
+    expect(body.service).toBe('blackroad-os-operator');
+    expect(body.requestsTotal).toBeGreaterThanOrEqual(3);
+    expect(body.responsesByStatus['200']).toBeGreaterThanOrEqual(3);
+    expect(body.responsesByRoute['/health']).toBeGreaterThanOrEqual(1);
+    expect(body.responsesByRoute['/version']).toBeGreaterThanOrEqual(1);
+    expect(body.responsesByRoute['/metrics']).toBeGreaterThanOrEqual(1);
+  });
+
   it('returns typed validation errors for invalid chat payload shape', async () => {
     const response = await app.inject({
       method: 'POST',
