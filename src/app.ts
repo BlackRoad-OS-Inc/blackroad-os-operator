@@ -1,0 +1,108 @@
+import Fastify, { type FastifyInstance } from 'fastify';
+
+import type { OperatorConfig } from './config.js';
+import { getConfig } from './config.js';
+import { connection } from './queues/index.js';
+import { checkLlmHealth, generateChatResponse, type ChatRequest } from './services/llm.service.js';
+import { getEventCount, getRecentEvents } from './utils/eventBus.js';
+import logger from './utils/logger.js';
+
+interface ChatRequestBody {
+  message: string;
+  userId?: string;
+  model?: string;
+}
+
+export function buildApp(config: OperatorConfig = getConfig()): FastifyInstance {
+  const app = Fastify({ loggerInstance: logger });
+
+  app.get('/health', async () => ({
+    ok: true,
+    service: 'blackroad-os-operator',
+    timestamp: new Date().toISOString()
+  }));
+
+  app.get('/ready', async () => {
+    let queueHealthy = false;
+
+    try {
+      const pong = await connection.ping();
+      queueHealthy = pong === 'PONG';
+    } catch (error) {
+      logger.warn({ error }, 'queue readiness check failed');
+    }
+
+    const checks = {
+      config: true,
+      queue: queueHealthy
+    };
+
+    return {
+      ready: Object.values(checks).every((check) => check === true),
+      service: 'blackroad-os-operator',
+      checks
+    };
+  });
+
+  app.get('/version', async () => ({
+    service: 'blackroad-os-operator',
+    version: config.version,
+    commit: config.commit,
+    env: config.brOsEnv
+  }));
+
+  app.post<{ Body: ChatRequestBody }>('/chat', async (request, reply) => {
+    const { message, userId, model } = request.body;
+
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      return reply.status(400).send({
+        error: 'Bad Request',
+        message: 'message field is required and must be a non-empty string'
+      });
+    }
+
+    try {
+      const chatRequest: ChatRequest = {
+        message: message.trim(),
+        userId,
+        model,
+      };
+
+      const response = await generateChatResponse(chatRequest);
+
+      return {
+        reply: response.reply,
+        trace: response.trace,
+      };
+    } catch (error) {
+      logger.error({ error, message }, 'Chat request failed');
+      return reply.status(500).send({
+        error: 'Internal Server Error',
+        message: error instanceof Error ? error.message : 'Failed to generate response'
+      });
+    }
+  });
+
+  app.get('/llm/health', async () => {
+    const health = await checkLlmHealth();
+    return {
+      service: 'llm-gateway',
+      provider: config.llmProvider,
+      configured_model: config.ollamaModel,
+      ollama_url: config.ollamaUrl,
+      ...health
+    };
+  });
+
+  app.get('/events', async (request) => {
+    const query = request.query as { limit?: string | number };
+    const limit = Number(query.limit ?? 100);
+
+    return {
+      count: getEventCount(),
+      events: getRecentEvents(Number.isFinite(limit) ? limit : 100)
+    };
+  });
+
+  return app;
+}
