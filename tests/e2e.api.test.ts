@@ -83,6 +83,38 @@ describe('E2E API routes', () => {
 
 
 
+
+  it('supports versioned v1 health and version endpoints', async () => {
+    const health = await app.inject({ method: 'GET', url: '/v1/health' });
+    const version = await app.inject({ method: 'GET', url: '/v1/version' });
+
+    expect(health.statusCode).toBe(200);
+    expect(version.statusCode).toBe(200);
+    expect(health.json()).toMatchObject({ ok: true, service: 'blackroad-os-operator' });
+    expect(version.json()).toMatchObject({ version: '1.2.3-test', env: 'test' });
+  });
+
+  it('supports versioned v1 integrations endpoint', async () => {
+    mockRunIntegrationE2E.mockResolvedValue({
+      ok: true,
+      dryRun: true,
+      results: [],
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/integrations/e2e',
+      payload: { dryRun: true },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      service: 'blackroad-os-operator',
+      ok: true,
+      dryRun: true,
+    });
+  });
+
   it('returns structured startup diagnostics', async () => {
     const response = await app.inject({ method: 'GET', url: '/diagnostics/startup' });
 

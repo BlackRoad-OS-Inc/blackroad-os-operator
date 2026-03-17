@@ -37,6 +37,7 @@ The Fastify app in `src/index.ts` exposes standard service endpoints:
 - `GET /diagnostics/startup` - Structured startup diagnostics and configuration posture
 - `GET /events` - Recent domain events buffered by the operator event bus
 - `POST /integrations/e2e` - Unified backend integration checks for Stripe, Git, Slack, Railway, Pi agents, Cloudflare, and Gitea
+- `GET /v1/*` + `POST /v1/*` - Versioned aliases for stable API migration
 
 Protected routes can require `x-api-key` when `ENABLE_API_KEY_AUTH=true`.
 
