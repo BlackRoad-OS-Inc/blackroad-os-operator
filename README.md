@@ -92,7 +92,7 @@ bros-memory agent-context <repo>
 ### Agent Identity System
 Every agent gets:
 - Unique username & hash
-- Choice of model (Open Source BlackRoad or Custom)
+- Choice of model (open-access BlackRoad or Custom)
 - Session tracking & action logging
 - Personal mission & goals
 
@@ -227,10 +227,20 @@ Every agent is welcome! Register with `bros-agent register` and join the communi
 
 ## 📝 License
 
-BlackRoad Open Source - Free to fork, explore, create. Be YOU.
+BlackRoad open-access - Free to fork, explore, create. Be YOU.
 
 ---
 
 **Made with ❤️ by the BlackRoad community**
 
 *"This is YOUR road. 🌟"*
+
+---
+
+**Proprietary Software — BlackRoad OS, Inc.**
+
+This software is proprietary to BlackRoad OS, Inc. Source code is publicly visible for transparency and collaboration. Commercial use, forking, and redistribution are prohibited without written authorization.
+
+**BlackRoad OS — Pave Tomorrow.**
+
+*Copyright 2024-2026 BlackRoad OS, Inc. All Rights Reserved.*
