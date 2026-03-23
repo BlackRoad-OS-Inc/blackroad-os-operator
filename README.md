@@ -1,3 +1,11 @@
+# blackroad-os-operator
+
+> BlackRoad OS operator and automation engine
+
+Part of the [BlackRoad OS](https://blackroad.io) ecosystem — [BlackRoad-OS-Inc](https://github.com/BlackRoad-OS-Inc)
+
+---
+
 # 🌟 BROS - BlackRoad Operator System
 
 > "Every agent picks their own hash, their own path"
